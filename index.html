@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+	<script src="https://cdn.rawgit.com/ngokevin/kframe/master/components/sun-sky/dist/aframe-sun-sky.min.js"></script>
+	<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.13.1/dist/aframe-extras.min.js"></script>
+	<title>Bug Labyrinth</title>
+</head>
+<body>
+<a-scene> 
+	<a-assets> 
+		<img src="assets/pasto.jpeg" id="suelo" />
+		<img src="assets/muro.jpg" id="muro" />
+
+	</a-assets>
+	<a-sun-sky material="sunPosition: 0 1 0;"> </a-sun-sky>
+	<a-entity id="jugador"
+		camera
+		kinematic-body
+		universal-controls
+		position="0 1.6 1">
+		<a-cursor fuse="true" fuse-timeout="800"> </a-cursor>
+		<a-text value="" width="4" id="score"  color="black" font="mozillavr" position="0 -0.5 -1" anchor="center" align="center"> </a-text>
+
+	</a-entity>
+	<a-entity id="muros"> </a-entity>
+	<a-entity id="premios"> </a-entity>
+	<a-grid src="#suelo" static-body> </a-grid>
+
+</a-scene>
+	<script>
+	//0 significa nada
+	//1 significa muro
+	//2 sinifica jugador
+	//3 sinifica premio
+
+		
+		var mapa = [
+			[1, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+			[1, 0, 1, 3, 0, 0, 0, 0, 0, 1],
+			[1, 0, 1, 0, 0, 1, 1, 1, 0, 1],
+			[1, 0, 1, 0, 0, 1, 3, 1, 0, 1],
+			[1, 0, 1, 2, 1, 1, 0, 1, 1, 1],
+			[1, 0, 1, 0, 0, 1, 0, 1, 3, 1],
+			[1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+			[1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+			[1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+			[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]														
+		]
+		var PARED = 5
+		var ALTO_PARED = 3
+		var muro
+		var muros = document.querySelector('#muros');
+		var premios = document.querySelector('#premios');
+		var scoreElement = document.querySelector('#score');
+		for (var x = 0; x < mapa.length; x++) 
+			{
+				//alert(x + ' ' + y + ' ' +posicion + 'pared: '+PARED + ' ' + mapa.length + ' ' + mapa[x].length)
+				for (var y = 0; y < mapa[x].length; y++) {
+					var posicion = ( x - mapa.length/2)*PARED + ' ' + 1.5 + ' ' + (y - mapa[x].length/2)*PARED
+
+					if (mapa[x][y] == 0){
+						continue
+					}else if (mapa[x][y] == 1){
+						//muro
+						muro = document.createElement('a-box');
+						muros.appendChild(muro);
+						muro.setAttribute('color','#FFF');
+						muro.setAttribute('material','src: #muro');
+						muro.setAttribute('width',PARED);
+						muro.setAttribute('depth',PARED);
+						muro.setAttribute('height',ALTO_PARED);
+						muro.setAttribute('position',posicion);
+						muro.setAttribute('static-body','');
+					}else if (mapa[x][y] == 2){
+						//jugador
+						document.querySelector('#jugador').setAttribute('position', posicion)
+					}else if (mapa[x][y] == 3){
+						//premio
+						premio=document.createElement('a-sphere')
+						premios.appendChild(premio)
+						premio.setAttribute('position',posicion)
+						premio.setAttribute('class','premio')
+						premio.setAttribute('color','tomato')
+						premio.setAttribute('radius','1')
+						premio.setAttribute('visible','true')
+					} 
+				}
+			}	
+			var premios = Array.from(document.querySelectorAll('.premio'))
+			var score = premios.length
+			scoreElement.setAttribute('value','Te faltan ' + score + ' para ganar!')
+			premios.forEach(function(premio){
+				premio.addEventListener('click', function(){
+					premio.setAttribute('visible','false')
+					score = score - 1
+					if ( score > 0 ){
+						scoreElement.setAttribute('value','Te faltan ' + score + ' para ganar!')
+					}
+					else{
+						scoreElement.setAttribute('value','Haz ganado!!!')
+					}
+					
+				})
+			})
+
+		</script>
+
+</body>
+</html>
